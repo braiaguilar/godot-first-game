@@ -59,7 +59,7 @@ func handle_movement() -> void:
         velocity.x = move_toward(velocity.x, 0, current_speed)
 
 func update_animation() -> void:
-    if player_state == STATE_ROLL:
+    if player_state in [STATE_ROLL, STATE_DEATH]:
         return
     
     if not is_on_floor():
