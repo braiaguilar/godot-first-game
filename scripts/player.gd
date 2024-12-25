@@ -10,10 +10,12 @@ const GRAVITY_INTENSITY = 1.2
 const SPEED = 100.0
 const JUMP_VELOCITY = -350.0
 const SPRINT_MULTIPLIER = 1.6
+const COYOTE_TIME = 0.2
 
 # Variables
 var current_speed = SPEED
 var player_is_dead = false
+var coyote_timer = 0.0
 
 func _physics_process(delta: float) -> void:
     apply_gravity(delta)
@@ -23,6 +25,7 @@ func _physics_process(delta: float) -> void:
         velocity.x = move_toward(velocity.x, 0, 2)
         return
 
+    update_coyote_time(delta)
     handle_movement()
     handle_idle()
     handle_jump()
@@ -32,6 +35,12 @@ func apply_gravity(delta: float) -> void:
     if not is_on_floor():
         animated_sprite.play("jump")
         velocity += (get_gravity() * GRAVITY_INTENSITY) * delta
+
+func update_coyote_time(delta: float) -> void:
+    if is_on_floor():
+        coyote_timer = COYOTE_TIME
+    else:
+        coyote_timer -= delta
 
 func handle_movement() -> void:
     var direction = Input.get_axis("move_left", "move_right")
@@ -47,9 +56,10 @@ func handle_idle() -> void:
         animated_sprite.play("idle")
 
 func handle_jump() -> void:
-    if Input.is_action_just_pressed("jump") and is_on_floor():
+    if Input.is_action_just_pressed("jump") and coyote_timer > 0.0:
         jump_sfx.play()
         velocity.y = JUMP_VELOCITY
+        coyote_timer = 0.0
 
 func handle_sprint() -> void:
     if Input.is_action_just_pressed("sprint") and is_on_floor():
